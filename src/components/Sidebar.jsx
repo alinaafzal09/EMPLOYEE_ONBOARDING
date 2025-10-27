@@ -1,10 +1,9 @@
-// src/components/Sidebar.jsx
-
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+// 🎯 NEW IMPORT: useNavigate for redirection
+import { Link, useLocation, useNavigate } from "react-router-dom"; 
 import './Sidebar.css'; 
 
-// Import all icons
+// Import all necessary icons, including the one for Logout
 import { 
     HomeIcon, 
     PencilSquareIcon, 
@@ -14,18 +13,14 @@ import {
     QuestionMarkCircleIcon, 
     ChevronRightIcon, 
     Bars3Icon, 
-    XMarkIcon 
+    XMarkIcon, 
+    ArrowRightOnRectangleIcon 
 } from '@heroicons/react/24/outline';
 
-// Define the menu items with their respective paths
+// Define the menu items... (Keep existing items)
 const menuItems = [
-    // ⭐ 1: Dashboard now points to the protected role-redirecting path.
-    // This will send HR users to /home and standard users to /registration.
     { name: "Dashboard", icon: HomeIcon, path: "/dashboard", current: false }, 
-    
-    // ⭐ 2: Request New Check path should match the protected route.
     { name: "Request New Check", icon: PencilSquareIcon, path: "/registration", current: false }, 
-    
     { name: "Candidates", icon: UsersIcon, path: "/candidates", current: true }, 
     { name: "Analytics", icon: ChartBarIcon, path: "/analytics", current: false },
     { name: "Settings", icon: Cog6ToothIcon, path: "/settings", current: false },
@@ -34,11 +29,24 @@ const menuItems = [
 
 const Sidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false); 
+    const location = useLocation();
+    // 🎯 INITIALIZE HOOKS: Get the navigation function
+    const navigate = useNavigate(); 
+
     const toggleSidebar = () => {
         setIsCollapsed(!isCollapsed);
     };
-    const location = useLocation();
     
+    // 🎯 LOGOUT LOGIC: Clear session and redirect
+    const handleLogout = () => {
+        // 1. Clear the authentication token/user data
+        //    (e.g., if you store the token in localStorage)
+        localStorage.removeItem('authToken'); 
+        
+        // 2. Redirect the user to the landing page ("/")
+        navigate('/'); 
+    };
+
     const ToggleIcon = isCollapsed ? Bars3Icon : XMarkIcon;
 
     return (
@@ -67,7 +75,6 @@ const Sidebar = () => {
                     {menuItems.map((item) => {
                         const Icon = item.icon;
                         
-                        // Check for path equivalence (/registration vs /new-check are treated the same)
                         const isActive = location.pathname === item.path || 
                                          (item.path === '/registration' && location.pathname === '/new-check'); 
                         
@@ -78,9 +85,7 @@ const Sidebar = () => {
                                 className={`nav-item ${isActive ? 'active' : ''}`}
                             >
                                 <Icon className="icon-small" /> 
-                                
                                 {!isCollapsed && item.name}
-                                
                                 {isActive && !isCollapsed && <ChevronRightIcon className="arrow-icon" />}
                             </Link>
                         );
@@ -88,7 +93,7 @@ const Sidebar = () => {
                 </nav>
             </div>
 
-            {/* User Profile: Hidden when collapsed */}
+            {/* User Profile */}
             <div className={`user-profile ${isCollapsed ? 'hidden' : ''}`}>
                 <div className="user-info">
                     <div className="user-avatar">PK</div>
@@ -98,6 +103,20 @@ const Sidebar = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* LOGOUT BUTTON */}
+            {!isCollapsed && (
+                <div className="sidebar-logout-container">
+                    <button 
+                        className="logout-button" 
+                        onClick={handleLogout} // Calls the function to clear session and redirect
+                    >
+                        <ArrowRightOnRectangleIcon className="logout-icon" />
+                        <span className="logout-text">Logout</span>
+                    </button>
+                </div>
+            )}
+            
         </div>
     );
 };

@@ -158,3 +158,50 @@
     align-items: center;
     gap: 40px;
 }
+
+
+/* Sidebar Logout Styling */
+
+.sidebar-logout-container {
+    /* Ensures space between the HRdesk profile and the Logout button */
+    padding: 10px 15px 15px 15px; 
+    
+}
+
+.logout-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Space between icon and text */
+    padding: 12px 15px;
+    
+    /* Style to fit the dark theme */
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    
+    /* Text/Icon Color */
+    color: #fff; /* White or light color for visibility */
+    opacity: 0.7; /* Make it slightly subtle */
+    
+    /* Hover Effect */
+    transition: all 0.2s;
+}
+
+.logout-button:hover {
+    opacity: 1;
+    color: #a0d8ff; /* Highlight color on hover (e.g., light blue/cyan) */
+    background: rgba(255, 255, 255, 0.05); /* Very slight background glow */
+    border-radius: 6px;
+}
+
+.logout-icon {
+    /* Adjust icon size */
+    width: 22px;
+    height: 22px;
+}
+
+.logout-text {
+    font-weight: 500;
+}

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+// 🎯 NEW IMPORT: Import useNavigate for redirection
+import { useNavigate } from 'react-router-dom';
 import './reg.css'; 
 
 // --- DocumentInput Component (Standard helper component) ---
@@ -25,7 +27,10 @@ const DocumentInput = ({ id, label, name, file, handler, isSubmitting, required,
 
 
 const RegisterNewCheck = () => {
-
+    
+    // 🎯 INITIALIZE HOOK: Get the navigation function
+    const navigate = useNavigate(); 
+    
     const initialState = {
         
         candidateName: '', city: '', localAddress: '', permanentAddress: '', 
@@ -47,7 +52,7 @@ const RegisterNewCheck = () => {
     const [formData, setFormData] = useState(initialState);
     const [isSubmitting, setIsSubmitting] = useState(false); 
     
-    // ⭐ NEW: State to track submission status (0: idle, 1: loading, 2: success, 3: error)
+    // State to track submission status (0: idle, 1: loading, 2: success, 3: error)
     const [submissionStatus, setSubmissionStatus] = useState(0); 
 
     // 2. Standard change handler for text inputs
@@ -83,17 +88,15 @@ const RegisterNewCheck = () => {
         if (isSubmitting) return;
 
         // Reset status for new attempt
-        setSubmissionStatus(1); //  Set status to Loading (1)
+        setSubmissionStatus(1); // Set status to Loading (1)
         setIsSubmitting(true);
 
         try {
             // --- VALIDATION (unchanged) ---
-            // Simplified validation to not clutter the submit logic if status is used
             const mandatoryFiles = ["tenthMarksheet", "twelfthMarksheet", "bachelorsDegree", "bachelorsResult", "resume", "identityProof", "policeVerification", "aadhaarOrDomicile",];
             const missingFile = mandatoryFiles.find((key) => !formData[key]);
             
             if (!formData.previousHrEmail || missingFile || formData.relievingLetter.length === 0 || formData.salarySlips.length === 0) {
-                // Find and surface the exact validation error ( original logic)
                 const missingKey = !formData.previousHrEmail ? "Previous HR Email" : missingFile.replace(/([A-Z])/g, " $1").trim();
                 throw new Error(`Please provide the mandatory field/document: ${missingKey}.`);
             }
@@ -101,9 +104,9 @@ const RegisterNewCheck = () => {
 
             // 1) Build metadata_json and FormData ( original complex file logic)
             const metadata = { /* ... */ }; // unchanged
-            const fd = new FormData();      // unchanged
+            const fd = new FormData();      // unchanged
             
-            // Re-use  existing FormData building logic here (Single-valued & Multi-valued doc types)
+            // Re-use existing FormData building logic here (Single-valued & Multi-valued doc types)
             
             // --- SIMULATE API CALL START ---
             
@@ -116,13 +119,17 @@ const RegisterNewCheck = () => {
             // if (!res.ok) { /* ... handle server error ... */ }
 
             
-            setSubmissionStatus(2); //  Set status to Success (2)
+            setSubmissionStatus(2); // Set status to Success (2)
             
-            // Reset form after a brief delay so user can see the success message
+            // Reset form and navigate after a brief delay so user can see the success message
             setTimeout(() => {
                 setFormData(initialState);
                 setSubmissionStatus(0); // Reset to Idle (0)
                 if(e.target) e.target.reset();
+                
+                // 🎯 REDIRECTION: Navigate to the landing page after success
+                navigate('/'); 
+
             }, 3000); 
 
 
@@ -144,7 +151,8 @@ const RegisterNewCheck = () => {
     // --- JSX RENDER  ---
     
     // ⭐ Conditional Rendering Logic
-    const isFormActive = submissionStatus === 0 || submissionStatus === 3; // Show form if Idle or after Error timeout
+    // Form is active if Idle (0) or after Error timeout (3)
+    const isFormActive = submissionStatus === 0 || submissionStatus === 3; 
     const isSubmittingState = isSubmitting && submissionStatus === 1; 
 
     const getSubmitButtonText = () => {
@@ -191,7 +199,6 @@ const RegisterNewCheck = () => {
 
                         {/* === CANDIDATE INFORMATION SECTION === */}
                         <h2 className="form-section-header">Candidate Details</h2>
-                        {/* ... (All  form fields remain here, unchanged) ... */}
                         
                         <div className="form-grid-2col">
                             <div className="form-input-group"><label htmlFor="candidateName" className="form-label">Candidate Full Name *</label><input id="candidateName" name="candidateName" type="text" className="form-input" value={formData.candidateName} onChange={handleChange} placeholder="e.g., Jane Doe" required disabled={isSubmittingState}/></div>
