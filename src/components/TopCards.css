@@ -1,0 +1,74 @@
+/* src/components/TopCards.css */
+
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px; 
+    margin-bottom: 32px; 
+}
+
+.card {
+    height:45px;
+    weight:300px;
+    background-color: #27293D; 
+    padding: 29px; 
+    border-radius: 12px; 
+    box-shadow: 0 10px 15px rgba(128, 0, 255, 1);
+    transition: all 0.3s;
+    border-top-width: 4px; 
+    border-top-style: solid;
+}
+
+.card:hover {
+    transform: scale(1.02); 
+}
+
+/* Specific Border Colors for the top edge */
+.border-green { border-top-color: #11d5c9a6;  }
+.border-blue { border-top-color: #11d5c9a6;  }
+.border-yellow { border-top-color: #11d5c9a6;  }
+
+
+.card-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.card-value {
+    font-size: 1 rem; 
+    font-weight: 800; 
+    color: white;
+    margin-bottom: 8px; 
+}
+
+.card-title {
+    font-size: 0.815rem; 
+    color: #9ca3af; 
+    font-weight: 600; 
+}
+
+.card-subtitle {
+    font-size: 0.80rem;
+    color: #6d7d9eff; 
+    margin-top: 2px; 
+    margin-bottom: 1px;
+}
+
+.card-icon-wrapper {
+    padding: 12px; 
+    border-radius: 50%; 
+    border-width: 2px; 
+    border-style: solid;
+}
+
+/* Icon Sizing (Used for the TopCards only) */
+.card-icon {
+    width: 20px; 
+    height: 20px;
+}
+
+/* Specific Icon Colors and Ring Colors */
+.icon-green { color: #4ade80;  border-color: rgba(16, 185, 129, 0.2); }
+.icon-blue { color: #60a5fa; border-color: rgba(59, 130, 246, 0.2);  }
+.icon-yellow { color: #facc15;  border-color: rgba(57, 203, 123, 0.2);  }

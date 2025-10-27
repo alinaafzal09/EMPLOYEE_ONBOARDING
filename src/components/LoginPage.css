@@ -1,0 +1,244 @@
+/* --- Layout Variables --- */
+:root {
+    --login-drawer-width: 450px; /* Reduced width for a contained card look */
+    --color-accent-teal: rgba(0, 255, 255, 0.4); /* Professional Teal */
+    --color-dark-bg: #1A1C2A;      /* Input background color */
+    --color-card-bg: #27293D;      /* Drawer/Card background color */
+    --color-border-subtle: #34374D; /* Subtle border color */
+    --color-text-light: #E0E0E0;   /* Light text color */
+    --color-text-subtle: #9ca3af;  /* Subdued text color */
+}
+
+/* --- Landing Page Container (Needed for full screen context) --- */
+.landing-container { 
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* --- Left Information Panel  --- */
+.info-panel {
+    flex-grow: 1; 
+    background-color: var(--color-card-bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 4rem;
+    box-sizing: border-box;
+    z-index: 10;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.info-panel h1 {
+    color: var(--color-text-light);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.info-panel p {
+    color: var(--color-text-subtle);
+    font-size: 1rem;
+}
+
+/* --- Login Drawer ( Fixed size, centered vertically, rounded box) --- */
+.login-drawer {
+    position: fixed;
+    /* Centering vertically */
+    top: 50%; 
+    right: 0;
+    /* Moves it off-screen initially while keeping the vertical center */
+    transform: translate(var(--login-drawer-width), -50%); 
+    
+    height: auto; /* IMPORTANT: Allows it to be a contained box */
+    max-height: 90vh; /* Prevents overflow on smaller screens */
+    width: var(--login-drawer-width); 
+    
+    background-color: var(--color-card-bg);
+    z-index: 1000;
+    transition: transform 0.4s ease-out;
+    padding: 3rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    
+    /* Larger border-radius for the card look */
+    border-radius: 20px; 
+
+    /* STRONGER TEAL SHADOW */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 
+                0 0 50px rgba(0, 255, 255, 0.4); 
+}
+
+.login-drawer.open {
+    /* Corrected transform to slide it into position */
+    transform: translate(0, -50%); 
+}
+
+/* --- Overlay (Kept as is) --- */
+.drawer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 990;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease-out, visibility 0s 0.4s;
+}
+
+.drawer-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+/* --- Login Toggle Button (Teal accents) --- */
+.login-toggle-btn {
+    position: fixed;
+    top: 32px;
+    right: 32px;
+    background-color: var(--color-accent-teal);
+    color: white; 
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    z-index: 1010;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 0 15px rgba(0, 191, 178, 0.3);
+}
+
+.login-toggle-btn:hover {
+    background-color: #00A69D;
+}
+
+
+/* --- Login Form Elements --- */
+.login-form-container h2 {
+    color: var(--color-text-light);
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    font-weight: 700;
+}
+
+.form-input-wrapper {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.login-form-input {
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--color-dark-bg);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 10px; /* Rounded inputs */
+    color: var(--color-text-light);
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.login-form-input:focus {
+    outline: none;
+    border-color: var(--color-accent-teal); /* Teal border on focus */
+    box-shadow: 0 0 0 2px rgba(0, 191, 178, 0.3); /* Teal shadow on focus */
+}
+
+/* Auth button (Teal/Rounded) */
+.auth-button {
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--color-accent-teal);
+    color: white; 
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: bold;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    margin-top: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 0 15px rgba(0, 191, 178, 0.3);
+}
+
+.auth-button:hover {
+    background-color: #00A69D;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 191, 178, 0.5);
+}
+
+.auth-button:disabled {
+    background-color: #007A72;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* --- Checkbox Styles (Teal accents) --- */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem; 
+}
+
+.custom-checkbox-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    cursor: pointer;
+}
+
+.custom-checkbox-label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--color-text-subtle);
+    font-size: 0.95rem;
+    padding-left: 28px;
+}
+
+.custom-checkbox-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 2px solid var(--color-border-subtle);
+    background-color: var(--color-dark-bg);
+    transition: all 0.2s ease-in-out;
+}
+
+.custom-checkbox-label::after {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.custom-checkbox-input:checked + .custom-checkbox-label::before {
+    background-color: var(--color-accent-teal);
+    border-color: var(--color-accent-teal);
+}
+
+.custom-checkbox-input:checked + .custom-checkbox-label::after {
+    opacity: 1;
+}
+
+.custom-checkbox-input:focus + .custom-checkbox-label::before {
+    box-shadow: 0 0 0 3px rgba(0, 191, 178, 0.4);
+}
