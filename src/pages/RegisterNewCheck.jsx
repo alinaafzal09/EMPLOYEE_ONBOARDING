@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-// 🎯 NEW IMPORT: Import useNavigate for redirection
 import { useNavigate } from 'react-router-dom';
-import './reg.css'; 
+import './reg.css'; // Assuming your CSS file is correctly located
 
 // --- DocumentInput Component (Standard helper component) ---
 const DocumentInput = ({ id, label, name, file, handler, isSubmitting, required, helpText = "Accepted formats: PDF, DOCX. Max file size: 5MB." }) => (
@@ -32,7 +31,6 @@ const RegisterNewCheck = () => {
     const navigate = useNavigate(); 
     
     const initialState = {
-        
         candidateName: '', city: '', localAddress: '', permanentAddress: '', 
         phoneNumber: '', email: '', employer: '', 
         previousHrEmail: '', 
@@ -83,75 +81,152 @@ const RegisterNewCheck = () => {
     // 6. SUBMIT HANDLER FOR JSON METADATA + FILE UPLOAD
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        // Block new submission if one is already active
         if (isSubmitting) return;
 
-        // Reset status for new attempt
-        setSubmissionStatus(1); // Set status to Loading (1)
+        // Set loading state for UI feedback
         setIsSubmitting(true);
+        setSubmissionStatus(1); // Set status to loading
+
+        // --- CLIENT-SIDE VALIDATION ---
+        if (!formData.previousHrEmail) {
+            alert("Validation Error: Please provide the mandatory Previous HR Email before submitting.");
+            setIsSubmitting(false);
+            setSubmissionStatus(0); // Reset status
+            return;
+        }
+
+        const mandatoryFiles = [
+            "tenthMarksheet", "twelfthMarksheet", "bachelorsDegree",
+            "bachelorsResult", "resume", "identityProof", 
+            "policeVerification", "aadhaarOrDomicile",
+        ];
+        const missingFile = mandatoryFiles.find((key) => !formData[key]);
+        if (missingFile) {
+            const fileName = missingFile.replace(/([A-Z])/g, " $1").trim();
+            //  Template literal backticks (\` \`) used for alert
+            alert(`Validation Error: Please upload the mandatory document: ${fileName} before submitting.`);
+            setIsSubmitting(false);
+            setSubmissionStatus(0); // Reset status
+            return;
+        }
+        if (formData.relievingLetter.length === 0) {
+            alert("Validation Error: Please upload at least one Relieving Letter file before submitting.");
+            setIsSubmitting(false);
+            setSubmissionStatus(0); // Reset status
+            return;
+        }
+        if (formData.salarySlips.length === 0) {
+            alert("Validation Error: Please upload at least one Salary Slip file before submitting.");
+            setIsSubmitting(false);
+            setSubmissionStatus(0); // Reset status
+            return;
+        }
 
         try {
-            // --- VALIDATION (unchanged) ---
-            const mandatoryFiles = ["tenthMarksheet", "twelfthMarksheet", "bachelorsDegree", "bachelorsResult", "resume", "identityProof", "policeVerification", "aadhaarOrDomicile",];
-            const missingFile = mandatoryFiles.find((key) => !formData[key]);
-            
-            if (!formData.previousHrEmail || missingFile || formData.relievingLetter.length === 0 || formData.salarySlips.length === 0) {
-                const missingKey = !formData.previousHrEmail ? "Previous HR Email" : missingFile.replace(/([A-Z])/g, " $1").trim();
-                throw new Error(`Please provide the mandatory field/document: ${missingKey}.`);
+            // 1) Build metadata_json (text fields only)
+            const metadata = {
+                candidateName: formData.candidateName || null, city: formData.city || null,
+                localAddress: formData.localAddress || null, permanentAddress: formData.permanentAddress || null,
+                phoneNumber: formData.phoneNumber || null, email: formData.email || null,
+                employer: formData.employer || null, previousHrEmail: formData.previousHrEmail || null,
+            };
+
+            // 2) Build FormData for multi-part file upload
+            const fd = new FormData();
+
+            // Single-valued doc types
+            const SINGLE_KEYS = [
+                "tenthMarksheet", "twelfthMarksheet", "bachelorsDegree",
+                "bachelorsResult", "resume", "identityProof",
+                "policeVerification", "aadhaarOrDomicile", "bankDetails",
+                "mastersDegree", "mastersResult"
+            ];
+            SINGLE_KEYS.forEach((key) => {
+                const f = formData[key];
+                if (f) {
+                    const isPdf = f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
+                    if (!isPdf) {
+                        // 🐛 FIXED: Template literal backticks (\` \`) used for throw
+                        throw new Error(`${key} must be a PDF`);
+                    }
+                    fd.append("doc_types", key); 
+                    fd.append("files", f, f.name);
+                }
+            });
+
+            // Multi-valued doc types
+            const MULTI_KEYS = ["relievingLetter", "salarySlips", "otherCertificates"];
+            MULTI_KEYS.forEach((key) => {
+                const arr = formData[key] || [];
+                arr.forEach((f) => {
+                    const isPdf = f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
+                    if (!isPdf) {
+                        // Template literal backticks (\` \`) used for throw
+                        throw new Error(`${key} contains a non-PDF file`);
+                    }
+                    fd.append("doc_types", key);
+                    fd.append("files", f, f.name);
+                });
+            });
+
+            // Attach metadata_json
+            fd.append("metadata_json", JSON.stringify(metadata));
+
+            if (!fd.has("files")) {
+                alert("Please select at least one PDF before submitting.");
+                // Note: The mandatory file checks above should prevent this alert from being reached
+                return;
             }
 
+            const apiEndpoint = "http://192.168.10.56:8088/ingest-files";
+            const res = await fetch(apiEndpoint, { method: "POST", body: fd });
+            const text = await res.text();
 
-            // 1) Build metadata_json and FormData ( original complex file logic)
-            const metadata = { /* ... */ }; // unchanged
-            const fd = new FormData();      // unchanged
-            
-            // Re-use existing FormData building logic here (Single-valued & Multi-valued doc types)
-            
-            // --- SIMULATE API CALL START ---
-            
-            // Simulating a successful response structure and delay for the progress bar
-            await new Promise(resolve => setTimeout(resolve, 3000)); 
-            
-            // Placeholder for actual fetch() call (uncomment when ready):
-            // const apiEndpoint = "http://192.168.10.56:8088/ingest-files";
-            // const res = await fetch(apiEndpoint, { method: "POST", body: fd });
-            // if (!res.ok) { /* ... handle server error ... */ }
+            if (!res.ok) {
+                // Surface server detail to help debug 400s
+                let detail = text;
+                try {
+                    const j = JSON.parse(text);
+                    detail = j?.detail ? JSON.stringify(j.detail) : text;
+                } catch {}
+                // 🐛 FIXED: Template literal backticks (\` \`) used for throw
+                throw new Error(`Server error ${res.status}: ${detail}`);
+            }
 
-            
-            setSubmissionStatus(2); // Set status to Success (2)
-            
-            // Reset form and navigate after a brief delay so user can see the success message
+            // Success Handling
+            try {
+                console.log("Server Response:", JSON.parse(text));
+            } catch {
+                console.log("Server Response (text):", text);
+            }
+
+            // Set success status (2)
+            setSubmissionStatus(2); 
+
+            // ** Implement Redirection **
             setTimeout(() => {
-                setFormData(initialState);
-                setSubmissionStatus(0); // Reset to Idle (0)
-                if(e.target) e.target.reset();
-                
-                // 🎯 REDIRECTION: Navigate to the landing page after success
-                navigate('/'); 
+                // Navigate to a dashboard or success page after 2 seconds
+                navigate('/dashboard/check-status', { replace: true }); 
+            }, 2000); 
 
-            }, 3000); 
-
+            setFormData(initialState);
+            e.target.reset(); // Reset form elements visually
 
         } catch (error) {
             console.error("Submission Error:", error);
-            // Optionally, set the error message here: 
-            // setErrorMsg(error.message); 
-            setSubmissionStatus(3); // ⭐ Set status to Error (3)
-            
-            // Reset to idle after a delay so the user can try again
-            setTimeout(() => setSubmissionStatus(0), 4000); 
-
+            //  Template literal backticks (\` \`) used for alert
+            alert(`Error: Submission failed: ${error.message}`);
+            // Set error status (3)
+            setSubmissionStatus(3);
         } finally {
-            setIsSubmitting(false);
+            // This is crucial: stop the spinning/disabled button regardless of success/fail
+            setIsSubmitting(false); 
         }
     };
     
-
     // --- JSX RENDER  ---
     
-    // ⭐ Conditional Rendering Logic
-    // Form is active if Idle (0) or after Error timeout (3)
+    //  Conditional Rendering Logic
     const isFormActive = submissionStatus === 0 || submissionStatus === 3; 
     const isSubmittingState = isSubmitting && submissionStatus === 1; 
 
@@ -177,7 +252,7 @@ const RegisterNewCheck = () => {
                 {submissionStatus === 1 && (
                     <div className="submission-message-box loading-box">
                         <p className="loading-text">Validating and uploading files...</p>
-                        <div className="progress-bar-style"></div> {/* Add CSS for the visual bar here */}
+                        <div className="progress-bar-style"></div> 
                     </div>
                 )}
                 
@@ -193,7 +268,7 @@ const RegisterNewCheck = () => {
                     </div>
                 )}
 
-                {/* === FORM CONTAINER - Hidden while Success is displayed === */}
+                {/* === FORM CONTAINER - Form is rendered if active or loading (1) === */}
                 {(isFormActive || submissionStatus === 1) && (
                     <form onSubmit={handleSubmit}>
 
@@ -278,7 +353,7 @@ const RegisterNewCheck = () => {
                             <input 
                                 id="relievingLetter" name="relievingLetter" type="file" multiple
                                 className="form-file-input" onChange={handleMultiFileChange}
-                                accept=".pdf,.docx " disabled={isSubmittingState} required
+                                accept=".pdf,.docx" disabled={isSubmittingState} required
                             />
                             {formData.relievingLetter.length > 0 && (
                                 <p className="file-selected-text">
@@ -326,7 +401,6 @@ const RegisterNewCheck = () => {
                             </div>
                         </div>
                         
-
                         {/* Optional: Bank Details */}
                         <DocumentInput 
                             id="bankDetails" label="Bank Details Proof (e.g., Cancelled Cheque/Statement) (Optional)" name="bankDetails" 
