@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './reg.css'; // Assuming your CSS file is correctly located
+import './reg.css'; 
 
-// --- DocumentInput Component (Standard helper component) ---
+// --- DocumentInput Component  ---
 const DocumentInput = ({ id, label, name, file, handler, isSubmitting, required, helpText = "Accepted formats: PDF, DOCX. Max file size: 5MB." }) => (
     <div className="form-input-group">
-        <label htmlFor={id} className="form-label">{label}</label>
+        <label htmlFor={id} className="form-label">{label}{required ? ' *' : ' (Optional)'}</label>
         <input 
             id={id} name={name} type="file"
             className="form-file-input" onChange={handler}
+            // Ensure all file inputs consistently accept both PDF and DOCX
             accept=".pdf,.docx" 
             required={required}
             disabled={isSubmitting}
@@ -27,7 +28,7 @@ const DocumentInput = ({ id, label, name, file, handler, isSubmitting, required,
 
 const RegisterNewCheck = () => {
     
-    // 🎯 INITIALIZE HOOK: Get the navigation function
+    //  INITIALIZE HOOK: Get the navigation function
     const navigate = useNavigate(); 
     
     const initialState = {
@@ -49,81 +50,55 @@ const RegisterNewCheck = () => {
 
     const [formData, setFormData] = useState(initialState);
     const [isSubmitting, setIsSubmitting] = useState(false); 
-    
-    // State to track submission status (0: idle, 1: loading, 2: success, 3: error)
-    const [submissionStatus, setSubmissionStatus] = useState(0); 
+    const [submissionStatus, setSubmissionStatus] = useState(0); // 0: idle, 1: loading, 2: success, 3: error
+    // Added state to hold specific error message
+    const [errorMessage, setErrorMessage] = useState('');
 
-    // 2. Standard change handler for text inputs
+    // Standard change handler for text inputs
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    // 3. handler for single-file inputs
+    // handler for single-file inputs
     const handleSingleFileChange = (e) => {
         const { name, files } = e.target;
         setFormData(prev => ({ ...prev, [name]: files[0] || null }));
     };
 
-    // 4. Special change handler for multi-file inputs
+    // Special change handler for multi-file inputs
     const handleMultiFileChange = (e) => {
         const { name, files } = e.target;
         setFormData(prev => ({ ...prev, [name]: Array.from(files) }));
     };
 
-    // 5. Helper function to display file names for multi-file fields
+    // Helper function to display file names for multi-file fields
     const displayFileNames = (files) => {
         return files.length > 0 
             ? files.map(f => f.name).join(', ') 
             : 'No files selected.';
     };
 
-    // 6. SUBMIT HANDLER FOR JSON METADATA + FILE UPLOAD
+    // 6. SUBMIT HANDLER FOR JSON METADATA + FILE UPLOAD 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isSubmitting) return;
 
-        // Set loading state for UI feedback
         setIsSubmitting(true);
         setSubmissionStatus(1); // Set status to loading
+        setErrorMessage(''); // Clear previous errors
 
         // --- CLIENT-SIDE VALIDATION ---
-        if (!formData.previousHrEmail) {
-            alert("Validation Error: Please provide the mandatory Previous HR Email before submitting.");
+        if (!formData.previousHrEmail || !formData.candidateName || !formData.email) {
+            alert("Validation Error: Please provide all mandatory candidate details (Name, Email, Previous HR Email, etc.) before submitting.");
             setIsSubmitting(false);
-            setSubmissionStatus(0); // Reset status
+            setSubmissionStatus(3); // Set error status
+            setErrorMessage('Mandatory text fields are missing.');
             return;
         }
-
-        const mandatoryFiles = [
-            "tenthMarksheet", "twelfthMarksheet", "bachelorsDegree",
-            "bachelorsResult", "resume", "identityProof", 
-            "policeVerification", "aadhaarOrDomicile",
-        ];
-        const missingFile = mandatoryFiles.find((key) => !formData[key]);
-        if (missingFile) {
-            const fileName = missingFile.replace(/([A-Z])/g, " $1").trim();
-            //  Template literal backticks (\` \`) used for alert
-            alert(`Validation Error: Please upload the mandatory document: ${fileName} before submitting.`);
-            setIsSubmitting(false);
-            setSubmissionStatus(0); // Reset status
-            return;
-        }
-        if (formData.relievingLetter.length === 0) {
-            alert("Validation Error: Please upload at least one Relieving Letter file before submitting.");
-            setIsSubmitting(false);
-            setSubmissionStatus(0); // Reset status
-            return;
-        }
-        if (formData.salarySlips.length === 0) {
-            alert("Validation Error: Please upload at least one Salary Slip file before submitting.");
-            setIsSubmitting(false);
-            setSubmissionStatus(0); // Reset status
-            return;
-        }
-
+        
         try {
-            // 1) Build metadata_json (text fields only)
+            // 1) Build metadata_json
             const metadata = {
                 candidateName: formData.candidateName || null, city: formData.city || null,
                 localAddress: formData.localAddress || null, permanentAddress: formData.permanentAddress || null,
@@ -133,6 +108,30 @@ const RegisterNewCheck = () => {
 
             // 2) Build FormData for multi-part file upload
             const fd = new FormData();
+            const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+            const validateAndAppendFiles = (key, fileOrArray) => {
+                const files = Array.isArray(fileOrArray) ? fileOrArray : (fileOrArray ? [fileOrArray] : []);
+                
+                files.forEach((f) => {
+                    const fileName = f.name.toLowerCase();
+                    
+                    // FIX 1: Correct validation for both PDF and DOCX
+                    const isPdfOrDocx = 
+                        f.type === "application/pdf" || fileName.endsWith(".pdf") ||
+                        f.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || fileName.endsWith(".docx");
+                    
+                    if (!isPdfOrDocx) {
+                        throw new Error(`${key}: File '${f.name}' is not a valid PDF or DOCX format.`);
+                    }
+                    if (f.size > MAX_FILE_SIZE) {
+                        throw new Error(`${key}: File '${f.name}' exceeds the 5MB limit.`);
+                    }
+                    
+                    fd.append("doc_types", key); 
+                    fd.append("files", f, f.name);
+                });
+            };
 
             // Single-valued doc types
             const SINGLE_KEYS = [
@@ -141,41 +140,17 @@ const RegisterNewCheck = () => {
                 "policeVerification", "aadhaarOrDomicile", "bankDetails",
                 "mastersDegree", "mastersResult"
             ];
-            SINGLE_KEYS.forEach((key) => {
-                const f = formData[key];
-                if (f) {
-                    const isPdf = f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
-                    if (!isPdf) {
-                        // 🐛 FIXED: Template literal backticks (\` \`) used for throw
-                        throw new Error(`${key} must be a PDF`);
-                    }
-                    fd.append("doc_types", key); 
-                    fd.append("files", f, f.name);
-                }
-            });
+            SINGLE_KEYS.forEach(key => validateAndAppendFiles(key, formData[key]));
 
             // Multi-valued doc types
             const MULTI_KEYS = ["relievingLetter", "salarySlips", "otherCertificates"];
-            MULTI_KEYS.forEach((key) => {
-                const arr = formData[key] || [];
-                arr.forEach((f) => {
-                    const isPdf = f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
-                    if (!isPdf) {
-                        // Template literal backticks (\` \`) used for throw
-                        throw new Error(`${key} contains a non-PDF file`);
-                    }
-                    fd.append("doc_types", key);
-                    fd.append("files", f, f.name);
-                });
-            });
+            MULTI_KEYS.forEach(key => validateAndAppendFiles(key, formData[key]));
 
             // Attach metadata_json
             fd.append("metadata_json", JSON.stringify(metadata));
 
             if (!fd.has("files")) {
-                alert("Please select at least one PDF before submitting.");
-                // Note: The mandatory file checks above should prevent this alert from being reached
-                return;
+                console.warn("Submitting form with metadata only. No files were uploaded.");
             }
 
             const apiEndpoint = "http://192.168.10.56:8088/ingest-files";
@@ -183,50 +158,38 @@ const RegisterNewCheck = () => {
             const text = await res.text();
 
             if (!res.ok) {
-                // Surface server detail to help debug 400s
                 let detail = text;
                 try {
                     const j = JSON.parse(text);
                     detail = j?.detail ? JSON.stringify(j.detail) : text;
                 } catch {}
-                // 🐛 FIXED: Template literal backticks (\` \`) used for throw
                 throw new Error(`Server error ${res.status}: ${detail}`);
             }
 
             // Success Handling
-            try {
-                console.log("Server Response:", JSON.parse(text));
-            } catch {
-                console.log("Server Response (text):", text);
-            }
-
-            // Set success status (2)
+            console.log("Submission successful.");
             setSubmissionStatus(2); 
 
             // ** Implement Redirection **
             setTimeout(() => {
-                // Navigate to a dashboard or success page after 2 seconds
                 navigate('/dashboard/check-status', { replace: true }); 
             }, 2000); 
 
+            // Clear state and reset form visually (more robust than e.target.reset())
             setFormData(initialState);
-            e.target.reset(); // Reset form elements visually
-
+            
         } catch (error) {
             console.error("Submission Error:", error);
-            //  Template literal backticks (\` \`) used for alert
-            alert(`Error: Submission failed: ${error.message}`);
-            // Set error status (3)
+            // alert(`Error: Submission failed: ${error.message}`);
+            setErrorMessage(`Submission failed: ${error.message}`);
             setSubmissionStatus(3);
         } finally {
-            // This is crucial: stop the spinning/disabled button regardless of success/fail
             setIsSubmitting(false); 
         }
     };
     
-    // --- JSX RENDER  ---
+    // --- JSX RENDER ---
     
-    //  Conditional Rendering Logic
     const isFormActive = submissionStatus === 0 || submissionStatus === 3; 
     const isSubmittingState = isSubmitting && submissionStatus === 1; 
 
@@ -242,7 +205,7 @@ const RegisterNewCheck = () => {
             <header className="main-header">
                 <h1 className="header-title">Request New Background Check</h1>
                 <p style={{ color: '#9ca3af', fontSize: '1rem', marginTop: '5px' }}>
-                    *Please fill out the candidate's details and attach **all mandatory documents** to initiate the check.
+                    *Please fill out the candidate's details. Document uploads are now **optional** but recommended.
                 </p>
             </header>
 
@@ -264,15 +227,16 @@ const RegisterNewCheck = () => {
                 
                 {submissionStatus === 3 && (
                     <div className="submission-message-box error-box">
-                        ❌ **Error!** Submission failed. Please check the required fields and network connection.
+                        ❌ **Error!** {errorMessage || 'Submission failed. Please check the required fields and network connection.'}
                     </div>
                 )}
 
                 {/* === FORM CONTAINER - Form is rendered if active or loading (1) === */}
                 {(isFormActive || submissionStatus === 1) && (
-                    <form onSubmit={handleSubmit}>
+                    // Removed e.target.reset() from the end of handleSubmit
+                    <form onSubmit={handleSubmit}> 
 
-                        {/* === CANDIDATE INFORMATION SECTION === */}
+                        {/* === CANDIDATE INFORMATION SECTION (Text fields remain MANDATORY) === */}
                         <h2 className="form-section-header">Candidate Details</h2>
                         
                         <div className="form-grid-2col">
@@ -294,26 +258,26 @@ const RegisterNewCheck = () => {
                             <textarea id="permanentAddress" name="permanentAddress" className="form-textarea" value={formData.permanentAddress} onChange={handleChange} placeholder="Street Address, Area, Pin Code for permanent residence" required disabled={isSubmittingState}/>
                         </div>
                         
-                        {/* === EDUCATION DOCUMENTS SECTION === */}
-                        <h2 className="form-section-header">Education Documents (PDFs preferred)</h2>
+                        {/* === EDUCATION DOCUMENTS SECTION ( OPTIONAL) === */}
+                        <h2 className="form-section-header">Education Documents</h2>
                         <div className="form-grid-2col">
                             <DocumentInput 
-                                id="tenthMarksheet" label="10th Marksheet *" name="tenthMarksheet" 
-                                file={formData.tenthMarksheet} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={true}
+                                id="tenthMarksheet" label="10th Marksheet" name="tenthMarksheet" 
+                                file={formData.tenthMarksheet} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false}
                             />
                             <DocumentInput 
-                                id="twelfthMarksheet" label="12th Marksheet *" name="twelfthMarksheet" 
-                                file={formData.twelfthMarksheet} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={true}
+                                id="twelfthMarksheet" label="12th Marksheet" name="twelfthMarksheet" 
+                                file={formData.twelfthMarksheet} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false}
                             />
                         </div>
                         <div className="form-grid-2col">
                             <DocumentInput 
-                                id="bachelorsDegree" label="Bachelor's Degree Certificate *" name="bachelorsDegree" 
-                                file={formData.bachelorsDegree} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={true}
+                                id="bachelorsDegree" label="Bachelor's Degree Certificate" name="bachelorsDegree" 
+                                file={formData.bachelorsDegree} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false}
                             />
                             <DocumentInput 
-                                id="bachelorsResult" label="Bachelor's Transcript/Result *" name="bachelorsResult" 
-                                file={formData.bachelorsResult} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={true}
+                                id="bachelorsResult" label="Bachelor's Transcript/Result" name="bachelorsResult" 
+                                file={formData.bachelorsResult} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false}
                             />
                         </div>
 
@@ -329,31 +293,28 @@ const RegisterNewCheck = () => {
                             />
                         </div>
                         
-                        {/* === VERIFICATION & OTHER DOCUMENTS SECTION === */}
+                        {/* === VERIFICATION & OTHER DOCUMENTS SECTION ( OPTIONAL) === */}
                         <h2 className="form-section-header" style={{marginTop: '30px'}}>Verification & Other Documents</h2>
                         <DocumentInput 
-                            id="identityProof" label="Identity Proof (PAN Card / Voter ID) *" name="identityProof" 
-                            file={formData.identityProof} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={true} 
-                            helpText="Mandatory: Upload a copy of your PAN Card or Voter ID."
+                            id="identityProof" label="Identity Proof (PAN Card / Voter ID)" name="identityProof" 
+                            file={formData.identityProof} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false} helpText="Upload a copy of your PAN Card or Voter ID (Optional). Accepted formats: PDF, DOCX. Max file size: 5MB."
                         />
                         <DocumentInput 
-                            id="policeVerification" label="Police Verification (Passport/PCC) *" name="policeVerification" 
-                            file={formData.policeVerification} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={true} 
-                            helpText="Mandatory: Upload a copy of your Passport or Police Clearance Certificate (PCC)."
+                            id="policeVerification" label="Police Verification (Passport/PCC)" name="policeVerification" 
+                            file={formData.policeVerification} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false} helpText="Upload a copy of your Passport or Police Clearance Certificate (PCC) (Optional). Accepted formats: PDF, DOCX. Max file size: 5MB."
                         />
                         <DocumentInput 
-                            id="aadhaarOrDomicile" label="Aadhaar Card or Domicile Certificate *" name="aadhaarOrDomicile" 
-                            file={formData.aadhaarOrDomicile} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={true} 
-                            helpText="Mandatory: Proof of identity/residency."
+                            id="aadhaarOrDomicile" label="Aadhaar Card or Domicile Certificate" name="aadhaarOrDomicile" 
+                            file={formData.aadhaarOrDomicile} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false} helpText="Proof of identity/residency (Optional). Accepted formats: PDF, DOCX. Max file size: 5MB."
                         />
 
-                        {/* Relieving Letter (Multi-file - Mandatory) */}
+                        {/* Relieving Letter (Multi-file - OPTIONAL) */}
                         <div className="form-input-group">
-                            <label htmlFor="relievingLetter" className="form-label">Relieving Letter from last Employer * (Multiple files accepted)</label>
+                            <label htmlFor="relievingLetter" className="form-label">Relieving Letter from last Employer (Multiple files accepted, Optional)</label>
                             <input 
                                 id="relievingLetter" name="relievingLetter" type="file" multiple
                                 className="form-file-input" onChange={handleMultiFileChange}
-                                accept=".pdf,.docx" disabled={isSubmittingState} required
+                                accept=".pdf,.docx" disabled={isSubmittingState} required={false}
                             />
                             {formData.relievingLetter.length > 0 && (
                                 <p className="file-selected-text">
@@ -361,18 +322,18 @@ const RegisterNewCheck = () => {
                                 </p>
                             )}
                             <p className="file-input-help-text">
-                                Mandatory: Upload all Relieving Letters/Experience Certificates.
+                                Optional: Upload all Relieving Letters/Experience Certificates. Accepted formats: PDF, DOCX. Max file size: 5MB per file.
                             </p>
                         </div>
 
                         <div className="form-grid-2col">
-                            {/* MANDATORY: Multi-file input: Salary Slips (Min 1 file) */}
+                            {/* Multi-file input: Salary Slips (OPTIONAL) */}
                             <div className="form-input-group">
-                                <label htmlFor="salarySlips" className="form-label">Salary Slips (Last 3 Months) *</label>
+                                <label htmlFor="salarySlips" className="form-label">Salary Slips (Last 3 Months) (Optional)</label>
                                 <input 
                                     id="salarySlips" name="salarySlips" type="file" multiple
                                     className="form-file-input" onChange={handleMultiFileChange}
-                                    accept=".pdf" disabled={isSubmittingState} required
+                                    accept=".pdf,.docx" disabled={isSubmittingState} required={false}
                                 />
                                 {formData.salarySlips.length > 0 && (
                                     <p className="file-selected-text">
@@ -380,11 +341,11 @@ const RegisterNewCheck = () => {
                                     </p>
                                 )}
                                 <p className="file-input-help-text">
-                                    Mandatory: Upload at least one salary slip.
+                                    Optional: Upload at least one salary slip. Accepted formats: PDF, DOCX. Max file size: 5MB per file.
                                 </p>
                             </div>
 
-                            {/* MANDATORY: Previous HR Email */}
+                            {/* MANDATORY: Previous HR Email (Text field remains MANDATORY) */}
                             <div className="form-input-group">
                                 <label htmlFor="previousHrEmail" className="form-label">Previous HR Email *</label>
                                 <input 
@@ -393,7 +354,7 @@ const RegisterNewCheck = () => {
                                     onChange={handleChange} 
                                     placeholder="e.g., hr@previouscompany.com" 
                                     disabled={isSubmittingState}
-                                    required 
+                                    required // This remains MANDATORY
                                 />
                                 <p className="file-input-help-text">
                                     Mandatory: Email of the previous HR for verification.
@@ -404,13 +365,12 @@ const RegisterNewCheck = () => {
                         {/* Optional: Bank Details */}
                         <DocumentInput 
                             id="bankDetails" label="Bank Details Proof (e.g., Cancelled Cheque/Statement) (Optional)" name="bankDetails" 
-                            file={formData.bankDetails} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false} 
-                        />
+                            file={formData.bankDetails} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false} />
 
-                        {/* Mandatory: Resume/CV */}
+                        {/* Optional: Resume/CV */}
                         <DocumentInput 
-                            id="resume" label="Resume/CV *" name="resume" 
-                            file={formData.resume} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={true}
+                            id="resume" label="Resume/CV (Optional)" name="resume" 
+                            file={formData.resume} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false}
                         />
 
                         {/* Optional: Other Certificates */}
@@ -419,7 +379,7 @@ const RegisterNewCheck = () => {
                             <input 
                                 id="otherCertificates" name="otherCertificates" type="file" multiple
                                 className="form-file-input" onChange={handleMultiFileChange}
-                                accept=".pdf" disabled={isSubmittingState}
+                                accept=".pdf,.docx" disabled={isSubmittingState} required={false}
                             />
                             {formData.otherCertificates.length > 0 && (
                                 <p className="file-selected-text">
@@ -427,7 +387,7 @@ const RegisterNewCheck = () => {
                                 </p>
                             )}
                             <p className="file-input-help-text">
-                                Upload multiple files.
+                                Upload multiple files. Accepted formats: PDF, DOCX. Max file size: 5MB per file.
                             </p>
                         </div>
 

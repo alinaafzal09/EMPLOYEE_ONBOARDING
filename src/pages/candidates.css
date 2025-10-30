@@ -1,0 +1,215 @@
+/* src/pages/candidates.css */
+
+
+/* 1. GENERAL LAYOUT & TABLE STRUCTURE */
+
+/* 
+.candidates-page-main {
+   padding: 20px; 
+   
+    width: calc(100% - 255px);  
+    margin-left: 135px;  
+    box-sizing: border-box;
+    min-height: 100vh;
+    padding-top: 60px; 
+} */
+
+
+
+.candidates-page-main {
+    padding: 20px;
+    
+    
+    margin-left: 13px; 
+    box-sizing: border-box;
+    min-height: 100vh;
+    padding-top: 60px; 
+}
+
+.page-header h1 {
+    color: #fbf3f3;
+    margin-bottom: 30px;
+    font-size: 2em;
+    border-bottom: 2px solid #374151;
+    padding-bottom: 10px;
+}
+
+.candidates-table-container {
+    background-color: #27293D;
+    border-radius: 8px;
+    /* IMPORTANT: ensures no scrollbars appear around the table */
+    overflow: hidden; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.candidates-datatable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: #e0e0e0;
+    font-size: 0.95em;
+}
+
+/* --- Table Headings (Header Row) --- */
+.candidates-datatable thead tr {
+    background-color: #34374D;
+    color: #ffffff;
+    font-weight: 600;
+    text-align: left;
+}
+
+.candidates-datatable th {
+    padding: 15px;
+    text-transform: uppercase;
+    font-size: 0.900rem;
+    letter-spacing: 0.05em;
+    color : #9ca3af;
+}
+
+/* --- Table Body Rows --- */
+.candidates-datatable tbody tr {
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #374151; 
+}
+
+.candidates-datatable tbody tr:hover:not(.detail-row) {
+    background-color: #303348;
+}
+
+.candidates-datatable td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+.candidates-datatable tbody tr:last-child {
+    border-bottom: none;
+}
+
+
+
+/* Style for the column containing the toggle button */
+.candidates-datatable .toggle-col {
+    width: 50px; /* Make the toggle column narrow */
+    text-align: center;
+    padding-right: 0;
+}
+
+/* Style for the button that toggles the row */
+.toggle-button {
+    background: none;
+    border: none;
+    color: #8B5CF6; /* Primary accent color */
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 0;
+    margin: 0;
+    transition: transform 0.2s ease, color 0.2s;
+}
+
+.toggle-button:hover {
+    color: #a78bfa;
+}
+
+/* Highlight the parent row when open */
+.candidates-datatable tbody tr.is-expanded {
+    background-color: #303348;
+}
+
+/* --- Detail Row (The Collapsed Content) --- */
+.detail-row td {
+    padding: 0; /* Remove padding from the wrapper TD */
+    background-color: #1e2030; /* Slightly darker background for the expanded content */
+    border-top: 2px solid #34374D; /* Visual separator */
+}
+
+/* Panel inside the detail row */
+.document-detail-panel {
+    padding: 20px 30px;
+    padding-left: 80px; /* Offset for the toggle column */
+}
+
+.document-detail-panel h3 {
+    color: #e0e0e0;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #374151;
+    padding-bottom: 8px;
+}
+
+/* Document List Styling */
+.document-detail-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.document-detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #374151;
+    font-size: 0.9em;
+}
+
+.document-detail-item:last-child {
+    border-bottom: none;
+}
+
+.doc-label {
+    flex-grow: 1;
+    font-weight: 500;
+}
+
+.doc-status {
+    margin-right: 20px;
+    font-size: 0.9em;
+}
+
+/* Status Colors */
+.status-present {
+    color: #4ade80; /* Green */
+}
+
+.status-missing {
+    color: #fca5a5; /* Red */
+    font-weight: 600;
+}
+
+/* Link Button */
+.doc-link-button {
+    background-color: #8B5CF6;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.8em;
+    transition: background-color 0.2s;
+}
+
+.doc-link-button:hover {
+    background-color: #7c47e8;
+}
+
+/* Multi-file links section */
+.multi-file-links {
+    display: flex;
+    gap: 10px;
+    margin-left: 15px; 
+}
+
+.doc-file-link {
+    color: #93c5fd; /* Light blue link color */
+    text-decoration: underline;
+    font-size: 0.8em;
+    transition: color 0.2s;
+}
+
+.doc-file-link:hover {
+    color: #60a5fa;
+}
+
+/* Old Missing Document Class (Kept for consistency, but less used now) */
+.missing-document-detail {
+    color: #fca5a5;
+}

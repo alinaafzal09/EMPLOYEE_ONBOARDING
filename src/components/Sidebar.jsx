@@ -1,5 +1,7 @@
+// src/components/Sidebar.jsx
+
 import React, { useState } from "react";
-// 🎯 NEW IMPORT: useNavigate for redirection
+//  useNavigate for redirection
 import { Link, useLocation, useNavigate } from "react-router-dom"; 
 import './Sidebar.css'; 
 
@@ -17,10 +19,11 @@ import {
     ArrowRightOnRectangleIcon 
 } from '@heroicons/react/24/outline';
 
-// Define the menu items... (Keep existing items)
+// Define the menu items, including the Candidates link
 const menuItems = [
     { name: "Dashboard", icon: HomeIcon, path: "/dashboard", current: false }, 
     { name: "Request New Check", icon: PencilSquareIcon, path: "/registration", current: false }, 
+    // This is the link for your CandidatesPage
     { name: "Candidates", icon: UsersIcon, path: "/candidates", current: true }, 
     { name: "Analytics", icon: ChartBarIcon, path: "/analytics", current: false },
     { name: "Settings", icon: Cog6ToothIcon, path: "/settings", current: false },
@@ -30,14 +33,14 @@ const menuItems = [
 const Sidebar = () => {
     const [isCollapsed, setIsCollapsed] = useState(false); 
     const location = useLocation();
-    // 🎯 INITIALIZE HOOKS: Get the navigation function
+    // INITIALIZE HOOKS: Get the navigation function
     const navigate = useNavigate(); 
 
     const toggleSidebar = () => {
         setIsCollapsed(!isCollapsed);
     };
     
-    // 🎯 LOGOUT LOGIC: Clear session and redirect
+    // LOGOUT LOGIC: Clear session and redirect
     const handleLogout = () => {
         // 1. Clear the authentication token/user data
         //    (e.g., if you store the token in localStorage)
@@ -75,6 +78,7 @@ const Sidebar = () => {
                     {menuItems.map((item) => {
                         const Icon = item.icon;
                         
+                        // Check if the current route matches the item's path, or if it's the registration path alias
                         const isActive = location.pathname === item.path || 
                                          (item.path === '/registration' && location.pathname === '/new-check'); 
                         
