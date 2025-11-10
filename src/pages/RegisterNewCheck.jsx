@@ -153,8 +153,28 @@ const RegisterNewCheck = () => {
                 console.warn("Submitting form with metadata only. No files were uploaded.");
             }
 
+
+            console.log("🚀 Final FormData contents:");
+for (let [key, val] of fd.entries()) {
+  if (val instanceof File) {
+    console.log(`${key}: FILE -> ${val.name} (${val.type}, ${val.size} bytes)`);
+  } else {
+    console.log(`${key}: ${val}`);
+  }
+}
+
+
+
+
+
+            
+
+
+
+
+
             //const apiEndpoint = "http://192.168.10.56:8088/ingest-files";
-            const apiEndpoint = "http://localhost:8088/ingest-files";
+            const apiEndpoint = "http://192.168.10.142:8088/ingest-files";
             const res = await fetch(apiEndpoint, { method: "POST", body: fd });
             const text = await res.text();
 
