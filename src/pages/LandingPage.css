@@ -1,0 +1,150 @@
+/* === STARRY DUST ANIMATION  === */
+
+
+
+.stars, .stars2, .stars3, .stars4, .stars5, .stars6, .stars7 {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-repeat: repeat; 
+  top: 0;
+  left: 0;
+  animation: moveStars 200s linear infinite;
+  opacity: 0.6;
+  z-index: 0;
+}
+
+/* 2. Individual Layers: Setting background-size for DENSITY */
+.stars {
+
+  background-image: radial-gradient(3px 3px at 20px 20px, #fff, transparent);
+  background-size: 15px 15px; 
+  animation-duration: 150s;
+  opacity: 0.8;
+}
+
+.stars2 {
+  /* Star Size: 2px 2px */
+  background-image: radial-gradient(2px 2px at 40px 60px, #fff, transparent);
+  background-size: 25px 25px; 
+  animation-duration: 250s;
+  opacity: 0.4;
+}
+
+.stars3 {
+  /* Star Size: 3px 3px */
+  background-image: radial-gradient(3px 3px at 80px 100px, #fff, transparent);
+  /* Density: Wider grid for lower star count (creates depth) */
+  background-size: 40px 40px; 
+  animation-duration: 300s;
+  opacity: 0.3;
+}
+
+.stars4 {
+  /* Star Size: 2px 2px */
+  background-image: radial-gradient(2px 2px at 30px 30px, #fff, transparent);
+  /* Density: Very tight grid for extreme scatter */
+  background-size: 10px 10px;
+  animation: moveStars 180s linear infinite reverse;
+  opacity: 0.5;
+}
+
+.stars5 {
+  /* Star Size: 4px 4px */
+  background-image: radial-gradient(4px 4px at 120px 150px, #fff, transparent);
+  /* Density: Medium-wide grid */
+  background-size: 50px 50px;
+  animation: moveStars 220s linear infinite;
+  opacity: 0.4;
+}
+
+.stars6 {
+  /* Star Size: 1px 1px */
+  background-image: radial-gradient(1px 1px at 10px 10px, #fff, transparent);
+  /* Density: Tightest grid for fine detail haze */
+  background-size: 8px 8px;
+  animation: moveStars 270s linear infinite reverse;
+  opacity: 0.2;
+}
+
+.stars7 {
+  /* Star Size: 5px 5px */
+  background-image: radial-gradient(5px 5px at 200px 250px, #fff, transparent);
+  /* Density: Widest grid for largest, furthest stars */
+  background-size: 70px 70px;
+  animation: moveStars 350s linear infinite;
+  opacity: 0.1;
+}
+
+
+@keyframes moveStars {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-2000px); 
+  }
+}
+
+
+
+.info-panel h1 {
+  font-size: 5rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #8B5CF6, #00BFAA, #3B82F6);
+  background-size: 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 6s ease-in-out infinite;
+  
+  
+  text-shadow: 
+    0 0 5px rgba(255, 255, 255, 0.5), 
+    0 0 15px rgba(24, 12, 51, 0.4), 
+    0 0 30px rgba(9, 212, 188, 0.2); 
+}
+
+/* Supporting text styling */
+.info-panel p {
+  color: #cbd5e1; 
+  transition: color 0.5s ease;
+  font-size: 1rem; 
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+.info-panel p:hover {
+  color: #ffffff;
+}
+
+/* Soft glow effect under text */
+.info-panel::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60%;
+  height: 60%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle at center,
+    rgba(139, 92, 246, 0.15) 0%,
+    rgba(0, 191, 170, 0.1) 40%,
+    transparent 80%
+  );
+  filter: blur(50px);
+  z-index: -1;
+}
+
+/* Animate gradient movement */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

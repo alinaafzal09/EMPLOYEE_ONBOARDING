@@ -20,7 +20,7 @@
     justify-content: between; /* Align the button to the right */
     align-items: center;
     margin-bottom: 32px;
-    /* Allow header text and button to coexist */
+    margin-top : 16px;
 }
 
 /* Move button to the end when expanded, or take up full space when collapsed */
@@ -56,6 +56,8 @@
     border-radius: 8px;
     transition: background-color 0.2s, color 0.2s;
     flex-shrink: 0; /* Prevents button from shrinking */
+    position: relative;
+    margin-top: 16 px;
 }
 
 .collapse-button:hover {

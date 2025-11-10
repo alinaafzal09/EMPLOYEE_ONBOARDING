@@ -1,15 +1,15 @@
 /* --- Layout Variables --- */
 :root {
-    --login-drawer-width: 450px; /* Reduced width for a contained card look */
-    --color-accent-teal: rgba(0, 255, 255, 0.4); /* Professional Teal */
-    --color-dark-bg: #1A1C2A;      /* Input background color */
-    --color-card-bg: #27293D;      /* Drawer/Card background color */
-    --color-border-subtle: #34374D; /* Subtle border color */
-    --color-text-light: #E0E0E0;   /* Light text color */
-    --color-text-subtle: #9ca3af;  /* Subdued text color */
+    --login-drawer-width: 360px; 
+    --color-accent-teal: rgba(0, 255, 255, 0.4); 
+    --color-dark-bg: #0b0b0cff;      
+    --color-card-bg: #0a0a0aff;      
+    --color-border-subtle: #0a0a0bff; 
+    --color-text-light: #E0E0E0;   
+    --color-text-subtle: #9ca3af;  
 }
 
-/* --- Landing Page Container (Needed for full screen context) --- */
+/* full screen */
 .landing-container { 
     display: flex;
     height: 100vh;
@@ -17,10 +17,10 @@
     overflow: hidden;
 }
 
-/* --- Left Information Panel  --- */
+
 .info-panel {
     flex-grow: 1; 
-    background-color: var(--color-card-bg);
+    background-color: rgba(10, 10, 31, 0.2);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -40,22 +40,18 @@
 
 .info-panel p {
     color: var(--color-text-subtle);
-    font-size: 1rem;
+    font-size: 1.20rem;
 }
 
-/* --- Login Drawer ( Fixed size, centered vertically, rounded box) --- */
+
 .login-drawer {
     position: fixed;
-    /* Centering vertically */
     top: 50%; 
     right: 0;
-    /* Moves it off-screen initially while keeping the vertical center */
     transform: translate(var(--login-drawer-width), -50%); 
-    
-    height: auto; /* IMPORTANT: Allows it to be a contained box */
-    max-height: 90vh; /* Prevents overflow on smaller screens */
+    height: auto; 
+    max-height: 90vh; 
     width: var(--login-drawer-width); 
-    
     background-color: var(--color-card-bg);
     z-index: 1000;
     transition: transform 0.4s ease-out;
@@ -63,21 +59,16 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    
-    /* Larger border-radius for the card look */
     border-radius: 20px; 
-
-    /* STRONGER TEAL SHADOW */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 
-                0 0 50px rgba(0, 255, 255, 0.4); 
+                0 0 50px rgba(161, 80, 183, 1); 
 }
 
 .login-drawer.open {
-    /* Corrected transform to slide it into position */
     transform: translate(0, -50%); 
 }
 
-/* --- Overlay (Kept as is) --- */
+
 .drawer-overlay {
     position: fixed;
     top: 0;
@@ -97,14 +88,13 @@
     transition-delay: 0s;
 }
 
-/* --- Login Toggle Button (Teal accents) --- */
 .login-toggle-btn {
     position: fixed;
     top: 32px;
     right: 32px;
     background-color: var(--color-accent-teal);
     color: white; 
-    padding: 12px 24px;
+    padding: 6px 24px;
     border: none;
     border-radius: 25px;
     cursor: pointer;
@@ -122,7 +112,7 @@
 /* --- Login Form Elements --- */
 .login-form-container h2 {
     color: var(--color-text-light);
-    font-size: 2.5rem;
+    font-size: 2rem;
     margin-bottom: 2rem;
     font-weight: 700;
 }
@@ -145,14 +135,14 @@
 
 .login-form-input:focus {
     outline: none;
-    border-color: var(--color-accent-teal); /* Teal border on focus */
-    box-shadow: 0 0 0 2px rgba(0, 191, 178, 0.3); /* Teal shadow on focus */
+    border-color: var(--color-accent-teal); 
+    box-shadow: 0 0 0 2px rgba(0, 191, 178, 0.3); 
 }
 
-/* Auth button (Teal/Rounded) */
+
 .auth-button {
     width: 100%;
-    padding: 1rem;
+    padding: 0.29rem;
     background-color: var(--color-accent-teal);
     color: white; 
     border: none;
@@ -176,7 +166,7 @@
     box-shadow: none;
 }
 
-/* --- Checkbox Styles (Teal accents) --- */
+
 .checkbox-group {
     display: flex;
     align-items: center;

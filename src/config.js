@@ -6,17 +6,15 @@ export const AppConfig = {
     companyEmail: "info@tridentinfo.com",
     tagline: "Welcome to Trident Information System!",
     
-    // Logo (Update path if needed)
-    logoPath: '/trident-logo.png', 
+    // Logo 
+    logoPath:'../assets/trident-logo-copy-1.webp',
     logoAltText: 'Trident Logo',
     logoWidth: '150px',
     logoHeight: 'auto',
     
     // Test Credentials (Mock Backend)
     mockCredentials: [
-        // Password changed to 1234
         { email: 'hr@trident.com', password: '1234', role: 'hr' },
-        // Password changed to 1234
         { email: 'user@trident.com', password: '1234', role: 'user' },
     ],
 };
