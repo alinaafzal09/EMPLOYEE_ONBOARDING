@@ -8,6 +8,7 @@ const PrivateRoute = ({ rolesRequired, element: Element }) => {
     const { isLoggedIn, userRole, loading } = useAuth();
     const location = useLocation(); 
 
+    console.log("new changes");
     /* --- 1. Sidebar Visibility Logic (Role-Aware) --- */
     
     // Paths where the sidebar is hidden for NON-HR users
