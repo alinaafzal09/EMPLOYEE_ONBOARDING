@@ -80,135 +80,131 @@ const RegisterNewCheck = () => {
     };
 
     // 6. SUBMIT HANDLER FOR JSON METADATA + FILE UPLOAD 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (isSubmitting) return;
+// RegisterNewCheck.jsx
 
-        setIsSubmitting(true);
-        setSubmissionStatus(1); // Set status to loading
-        setErrorMessage(''); // Clear previous errors
+// 6. SUBMIT HANDLER FOR JSON METADATA + FILE UPLOAD 
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
 
-        // --- CLIENT-SIDE VALIDATION ---
-        if (!formData.previousHrEmail || !formData.candidateName || !formData.email) {
-            alert("Validation Error: Please provide all mandatory candidate details (Name, Email, Previous HR Email, etc.) before submitting.");
-            setIsSubmitting(false);
-            setSubmissionStatus(3); // Set error status
-            setErrorMessage('Mandatory text fields are missing.');
-            return;
+    setIsSubmitting(true);
+    setSubmissionStatus(1); // Set status to loading
+    setErrorMessage(''); // Clear previous errors
+
+    // --- CLIENT-SIDE VALIDATION ---
+    if (!formData.previousHrEmail || !formData.candidateName || !formData.email) {
+        alert("Validation Error: Please provide all mandatory candidate details (Name, Email, Previous HR Email, etc.) before submitting.");
+        setIsSubmitting(false);
+        setSubmissionStatus(3); // Set error status
+        setErrorMessage('Mandatory text fields are missing.');
+        return;
+    }
+    
+    try {
+        // 1) Build metadata object
+        const metadata = {
+            candidateName: formData.candidateName || null, city: formData.city || null,
+            localAddress: formData.localAddress || null, permanentAddress: formData.permanentAddress || null,
+            phoneNumber: formData.phoneNumber || null, email: formData.email || null,
+            employer: formData.employer || null, previousHrEmail: formData.previousHrEmail || null,
+        };
+
+        // 2) Build FormData for multi-part file upload
+        const fd = new FormData();
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+        // NEW: Create an array to collect the doc_types in the correct order
+        const doc_types = [];
+
+        const validateAndAppendFiles = (key, fileOrArray) => {
+            const files = Array.isArray(fileOrArray) ? fileOrArray : (fileOrArray ? [fileOrArray] : []);
+            
+            files.forEach((f) => {
+                const fileName = f.name.toLowerCase();
+                
+                const isPdfOrDocx = 
+                    f.type === "application/pdf" || fileName.endsWith(".pdf") ||
+                    f.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || fileName.endsWith(".docx");
+                
+                if (!isPdfOrDocx) {
+                    throw new Error(`${key}: File '${f.name}' is not a valid PDF or DOCX format.`);
+                }
+                if (f.size > MAX_FILE_SIZE) {
+                    throw new Error(`${key}: File '${f.name}' exceeds the 5MB limit.`);
+                }
+                
+                // MODIFIED: Push the key to our array and append only the file to FormData
+                doc_types.push(key); 
+                fd.append("files", f, f.name);
+            });
+        };
+
+        // Single-valued doc types
+        const SINGLE_KEYS = [
+            "tenthMarksheet", "twelfthMarksheet", "bachelorsDegree",
+            "bachelorsResult", "resume", "identityProof",
+            "policeVerification", "aadhaarOrDomicile", "bankDetails",
+            "mastersDegree", "mastersResult"
+        ];
+        SINGLE_KEYS.forEach(key => validateAndAppendFiles(key, formData[key]));
+
+        // Multi-valued doc types
+        const MULTI_KEYS = ["relievingLetter", "salarySlips", "otherCertificates"];
+        MULTI_KEYS.forEach(key => validateAndAppendFiles(key, formData[key]));
+
+        // NEW: Combine metadata and the doc_types array into a single payload object
+        const finalPayload = {
+            metadata: metadata,
+            doc_types: doc_types,
+        };
+
+        // MODIFIED: Attach the correctly structured payload as a single JSON string
+        fd.append("metadata_json", JSON.stringify(finalPayload));
+        
+        if (!fd.has("files")) {
+            console.warn("Submitting form with metadata only. No files were uploaded.");
+        }
+
+        console.log("🚀 Final FormData contents:");
+        for (let [key, val] of fd.entries()) {
+            if (val instanceof File) {
+                console.log(`${key}: FILE -> ${val.name} (${val.type}, ${val.size} bytes)`);
+            } else {
+                console.log(`${key}: ${val}`);
+            }
         }
         
-        try {
-            // 1) Build metadata_json
-            const metadata = {
-                candidateName: formData.candidateName || null, city: formData.city || null,
-                localAddress: formData.localAddress || null, permanentAddress: formData.permanentAddress || null,
-                phoneNumber: formData.phoneNumber || null, email: formData.email || null,
-                employer: formData.employer || null, previousHrEmail: formData.previousHrEmail || null,
-            };
+        const apiEndpoint = "http://localhost:8088/ingest-files";
+        const res = await fetch(apiEndpoint, { method: "POST", body: fd });
+        const text = await res.text();
 
-            // 2) Build FormData for multi-part file upload
-            const fd = new FormData();
-            const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-
-            const validateAndAppendFiles = (key, fileOrArray) => {
-                const files = Array.isArray(fileOrArray) ? fileOrArray : (fileOrArray ? [fileOrArray] : []);
-                
-                files.forEach((f) => {
-                    const fileName = f.name.toLowerCase();
-                    
-                    // FIX 1: Correct validation for both PDF and DOCX
-                    const isPdfOrDocx = 
-                        f.type === "application/pdf" || fileName.endsWith(".pdf") ||
-                        f.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || fileName.endsWith(".docx");
-                    
-                    if (!isPdfOrDocx) {
-                        throw new Error(`${key}: File '${f.name}' is not a valid PDF or DOCX format.`);
-                    }
-                    if (f.size > MAX_FILE_SIZE) {
-                        throw new Error(`${key}: File '${f.name}' exceeds the 5MB limit.`);
-                    }
-                    
-                    fd.append("doc_types", key); 
-                    fd.append("files", f, f.name);
-                });
-            };
-
-            // Single-valued doc types
-            const SINGLE_KEYS = [
-                "tenthMarksheet", "twelfthMarksheet", "bachelorsDegree",
-                "bachelorsResult", "resume", "identityProof",
-                "policeVerification", "aadhaarOrDomicile", "bankDetails",
-                "mastersDegree", "mastersResult"
-            ];
-            SINGLE_KEYS.forEach(key => validateAndAppendFiles(key, formData[key]));
-
-            // Multi-valued doc types
-            const MULTI_KEYS = ["relievingLetter", "salarySlips", "otherCertificates"];
-            MULTI_KEYS.forEach(key => validateAndAppendFiles(key, formData[key]));
-
-            // Attach metadata_json
-            fd.append("metadata_json", JSON.stringify(metadata));
-
-            if (!fd.has("files")) {
-                console.warn("Submitting form with metadata only. No files were uploaded.");
-            }
-
-
-            console.log("🚀 Final FormData contents:");
-for (let [key, val] of fd.entries()) {
-  if (val instanceof File) {
-    console.log(`${key}: FILE -> ${val.name} (${val.type}, ${val.size} bytes)`);
-  } else {
-    console.log(`${key}: ${val}`);
-  }
-}
-
-
-
-
-
-            
-
-
-
-
-
-            //const apiEndpoint = "http://192.168.10.56:8088/ingest-files";
-            const apiEndpoint = "http://192.168.10.142:8088/ingest-files";
-            const res = await fetch(apiEndpoint, { method: "POST", body: fd });
-            const text = await res.text();
-
-            if (!res.ok) {
-                let detail = text;
-                try {
-                    const j = JSON.parse(text);
-                    detail = j?.detail ? JSON.stringify(j.detail) : text;
-                } catch {}
-                throw new Error(`Server error ${res.status}: ${detail}`);
-            }
-
-            // Success Handling
-            console.log("Submission successful.");
-            setSubmissionStatus(2); 
-
-            // ** Implement Redirection **
-            setTimeout(() => {
-                navigate('/dashboard/check-status', { replace: true }); 
-            }, 2000); 
-
-            // Clear state and reset form visually (more robust than e.target.reset())
-            setFormData(initialState);
-            
-        } catch (error) {
-            console.error("Submission Error:", error);
-            // alert(`Error: Submission failed: ${error.message}`);
-            setErrorMessage(`Submission failed: ${error.message}`);
-            setSubmissionStatus(3);
-        } finally {
-            setIsSubmitting(false); 
+        if (!res.ok) {
+            let detail = text;
+            try {
+                const j = JSON.parse(text);
+                detail = j?.detail ? JSON.stringify(j.detail) : text;
+            } catch {}
+            throw new Error(`Server error ${res.status}: ${detail}`);
         }
-    };
-    
+
+        // Success Handling
+        console.log("Submission successful.");
+        setSubmissionStatus(2); 
+
+        setTimeout(() => {
+            navigate('/dashboard/check-status', { replace: true }); 
+        }, 2000); 
+
+        setFormData(initialState);
+        
+    } catch (error) {
+        console.error("Submission Error:", error);
+        setErrorMessage(`Submission failed: ${error.message}`);
+        setSubmissionStatus(3);
+    } finally {
+        setIsSubmitting(false); 
+    }
+};
     // --- JSX RENDER ---
     
     const isFormActive = submissionStatus === 0 || submissionStatus === 3; 
