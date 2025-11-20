@@ -100,7 +100,7 @@ const Sidebar = () => {
             {/* User Profile */}
             <div className={`user-profile ${isCollapsed ? 'hidden' : ''}`}>
                 <div className="user-info">
-                    <div className="user-avatar">PK</div>
+                    <div className="user-avatar">HR</div>
                     <div>
                         <p className="user-name">HRdesk</p>
                         <p className="user-title">Hiring Manager</p>

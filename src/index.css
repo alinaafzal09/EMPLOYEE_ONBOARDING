@@ -13,11 +13,20 @@ body, #root, html {
     height: 100vh;
     margin: 0;
     padding: 0;
+   /* overflow-x:hidden;
+    overflow-y:hidden;*/
 }
 * {
     transition: all 0.2s ease-in-out;
 }
 
+/* This is the class we will use to lock the scroll */
+.no-scroll-page {
+    overflow: hidden !important; 
+    height: 100%;
+    margin: 0; /* Important to prevent scrollbars from appearing due to default browser margins */
+    padding: 0;
+}
 /*.app-container {
     height: 100vh; 
     margin: 0;    
@@ -124,7 +133,7 @@ body, #root, html {
 }
 
 /* --- Sidebar Styles --- */
-.sidebar-container {
+/*.sidebar-container {
     width: 250px;
     position: fixed; 
     top: 60px;
@@ -136,7 +145,7 @@ body, #root, html {
     transition: width 0.3s ease;
     overflow-y: hidden;
     height: 1000%; 
-}
+}*/
 .sidebar-container {
     width: 255px;
     height: 100vh;
@@ -151,10 +160,11 @@ body, #root, html {
     padding: 16px;
     color: #e0e0e0;
     transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
-    margin-top: -40px;
-    margin-bottom: 80px;
-}
+    margin-top: -30px;
+    bottom : 0;
 
+    
+}
 
 
 

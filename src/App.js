@@ -1,8 +1,9 @@
-// src/App.js
-
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom"; 
 import { useAuth } from "./context/AuthContext"; 
+
+// Import the new scroll control component
+import ScrollLocker from './components/ScrollLocker'; 
 
 // Core Application Pages & Layout Components
 import Home from "./pages/Home"; 
@@ -24,30 +25,37 @@ function App() {
         <div className="app-container">
             <Routes>
                 
-                {/*  A. PUBLIC ROUTES */}
-                <Route path="/" element={<LandingPage />} /> 
-                <Route path="/login" element={<LandingPage />} />
+                {/*  A. PUBLIC ROUTES (Wrapped for NON-SCROLL) */}
+                <Route 
+                    path="/" 
+                    element={<ScrollLocker><LandingPage /></ScrollLocker>} 
+                /> 
+                <Route 
+                    path="/login" 
+                    element={<ScrollLocker><LandingPage /></ScrollLocker>} 
+                />
                 
-                {/*  B. PROTECTED ROUTES GROUP */}
+                {/*  B. PROTECTED ROUTES GROUP */}
                 
+                {/* NON-SCROLLABLE Dashboard & Home Routes (Wrapped) */}
                 <Route 
                     path="/dashboard" 
-                    element={<PrivateRoute rolesRequired={['hr', 'user']} element={<UserDashboardRedirect />} />} 
+                    element={<PrivateRoute rolesRequired={['hr', 'user']} element={<ScrollLocker><UserDashboardRedirect /></ScrollLocker>} />} 
                 />
 
-                {/* 1. HR-ONLY Routes */}
+                {/* 1. HR-ONLY Routes (Wrapped for NON-SCROLL) */}
                 <Route 
                     path="/home" 
-                    element={<PrivateRoute rolesRequired={['hr']} element={<Home />} />} 
+                    element={<PrivateRoute rolesRequired={['hr']} element={<ScrollLocker><Home /></ScrollLocker>} />} 
                 />
 
-                {/*  Candidates List (RESTRICTED to HR only) */}
+                {/*  Candidates List (RESTRICTED to HR only) (Wrapped for NON-SCROLL) */}
                 <Route 
                     path="/candidates" 
-                    element={<PrivateRoute rolesRequired={['hr']} element={<CandidatesPage />} />} 
+                    element={<PrivateRoute rolesRequired={['hr']} element={<ScrollLocker><CandidatesPage /></ScrollLocker>} />} 
                 />
                 
-                {/* 2. HR and USER Routes (Registration Page) */}
+                {/* 2. HR and USER Routes (Registration Page) - NOT Wrapped (SCROLLABLE) */}
                 <Route 
                     path="/registration" 
                     element={<PrivateRoute rolesRequired={['hr', 'user']} element={<RegisterNewCheck />} />} 
@@ -57,8 +65,8 @@ function App() {
                     element={<PrivateRoute rolesRequired={['hr', 'user']} element={<RegisterNewCheck />} />} 
                 />
 
-                {/* Fallback for 404 Pages */}
-                <Route path="*" element={<Navigate to="/login" replace />} />
+                {/* Fallback for 404 Pages (Wrapped for NON-SCROLL) */}
+                <Route path="*" element={<ScrollLocker><Navigate to="/login" replace /></ScrollLocker>} />
                 
             </Routes>
         </div>

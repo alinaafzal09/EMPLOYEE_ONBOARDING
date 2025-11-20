@@ -87,7 +87,8 @@ const LandingPage = () => {
                 <p className="text-white text-lg mb-2">{info.companyName}</p>
                 <p className="text-gray-400 mb-8">Email: {info.companyEmail}</p>
                 <p className="text-gray-500 italic">
-                    [Content placeholder: Add a system summary here later...]
+                          
+                          
                 </p>
             </div>
 
