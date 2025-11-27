@@ -20,7 +20,7 @@
     justify-content: between; /* Align the button to the right */
     align-items: center;
     margin-bottom: 32px;
-    margin-top : 16px;
+    margin-top : -12px;
 }
 
 /* Move button to the end when expanded, or take up full space when collapsed */
@@ -165,31 +165,35 @@
 /* Sidebar Logout Styling */
 
 .sidebar-logout-container {
-    /* Ensures space between the HRdesk profile and the Logout button */
-    padding: 10px 15px 15px 15px; 
-    
+    padding: 0 15px 10px 15px; /* no top padding */
+    margin-top: -50px;          /* pull it slightly upward */
 }
+
 
 .logout-button {
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 12px; /* Space between icon and text */
-    padding: 12px 15px;
-    
-    /* Style to fit the dark theme */
+    gap: 6px;          /* smaller space */
+    padding: 6px 8px;  /* SLIMMER height */
+
     background: none;
     border: none;
     cursor: pointer;
     text-align: left;
-    
-    /* Text/Icon Color */
-    color: #fff; /* White or light color for visibility */
-    opacity: 0.7; /* Make it slightly subtle */
-    
-    /* Hover Effect */
+
+    color: #fff;
+    opacity: 0.7;
+
     transition: all 0.2s;
+    font-size: 0.85rem; /* smaller clean font */
 }
+.logout-button:hover {
+    opacity: 1;
+    background: #34374D;
+    border-radius: 6px;
+}
+
 
 .logout-button:hover {
     opacity: 1;

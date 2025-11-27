@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { AppConfig } from '../config'; 
-import './LoginPage.css'; // Your dedicated CSS
+import './LoginPage.css'; 
 
 const LoginPage = ({ closeDrawer }) => {
     const [email, setEmail] = useState('');
@@ -33,7 +33,7 @@ const LoginPage = ({ closeDrawer }) => {
             if (userFound) {
                 const userRole = userFound.role;
                 
-                // ⭐  can use 'rememberMe' state here, e.g., to store credentials in localStorage
+                //   can use 'rememberMe' state here, e.g., to store credentials in localStorage
                 if (rememberMe) {
                     console.log("Remember Me is checked. In a real app, you'd save credentials/token.");
                     // Example: localStorage.setItem('rememberedEmail', email);
@@ -95,7 +95,7 @@ const LoginPage = ({ closeDrawer }) => {
                     />
                 </div>
                 
-                {/* ⭐ NEW: "Remember Me" Checkbox */}
+                {/*  "Remember Me" Checkbox */}
                 <div className="checkbox-group">
                     <input 
                         type="checkbox" 

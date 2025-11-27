@@ -1,28 +1,11 @@
 /* src/pages/candidates.css */
 
-
-
-/* 
-.candidates-page-main {
-   padding: 20px; 
-   
-    width: calc(100% - 255px);  
-    margin-left: 135px;  
-    box-sizing: border-box;
-    min-height: 100vh;
-    padding-top: 60px; 
-} */
-
-
-
 .candidates-page-main {
     padding: 20px;
-    
-    
-    margin-left: 13px; 
+    margin-left: 13px;
     box-sizing: border-box;
     min-height: 100vh;
-    padding-top: 1px; 
+    padding-top: 1px;
 }
 
 .page-header h1 {
@@ -36,8 +19,7 @@
 .candidates-table-container {
     background-color: #27293D;
     border-radius: 8px;
-    /* IMPORTANT: ensures no scrollbars appear around the table */
-    overflow: hidden; 
+    overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
@@ -62,13 +44,13 @@
     text-transform: uppercase;
     font-size: 0.900rem;
     letter-spacing: 0.05em;
-    color : #9ca3af;
+    color: #9ca3af;
 }
 
 /* --- Table Body Rows --- */
 .candidates-datatable tbody tr {
     transition: background-color 0.2s;
-    border-bottom: 1px solid #374151; 
+    border-bottom: 1px solid #374151;
 }
 
 .candidates-datatable tbody tr:hover:not(.detail-row) {
@@ -84,20 +66,17 @@
     border-bottom: none;
 }
 
-
-
-/* Style for the column containing the toggle button */
+/* Toggle Column */
 .candidates-datatable .toggle-col {
-    width: 50px; /* Make the toggle column narrow */
+    width: 50px;
     text-align: center;
     padding-right: 0;
 }
 
-/* Style for the button that toggles the row */
 .toggle-button {
     background: none;
     border: none;
-    color: #8B5CF6; /* Primary accent color */
+    color: #8B5CF6;
     cursor: pointer;
     font-size: 1.2em;
     padding: 0;
@@ -109,22 +88,20 @@
     color: #a78bfa;
 }
 
-/* Highlight the parent row when open */
 .candidates-datatable tbody tr.is-expanded {
     background-color: #303348;
 }
 
-/* --- Detail Row (The Collapsed Content) --- */
+/* --- Detail Row --- */
 .detail-row td {
-    padding: 0; /* Remove padding from the wrapper TD */
-    background-color: #1e2030; /* Slightly darker background for the expanded content */
-    border-top: 2px solid #34374D; /* Visual separator */
+    padding: 0;
+    background-color: #1e2030;
+    border-top: 2px solid #34374D;
 }
 
-/* Panel inside the detail row */
 .document-detail-panel {
     padding: 20px 30px;
-    padding-left: 80px; /* Offset for the toggle column */
+    padding-left: 80px;
 }
 
 .document-detail-panel h3 {
@@ -135,7 +112,7 @@
     padding-bottom: 8px;
 }
 
-/* Document List Styling */
+/* Document List */
 .document-detail-list {
     list-style: none;
     padding: 0;
@@ -160,12 +137,7 @@
     font-weight: 500;
 }
 
-.doc-status {
-    margin-right: 20px;
-    font-size: 0.9em;
-}
-
-/* Status Colors */
+/* Present/Missing Text Colors */
 .status-present {
     color: #4ade80; /* Green */
 }
@@ -175,7 +147,7 @@
     font-weight: 600;
 }
 
-/* Link Button */
+/* View File Button */
 .doc-link-button {
     background-color: #8B5CF6;
     color: white;
@@ -190,15 +162,15 @@
     background-color: #7c47e8;
 }
 
-/* Multi-file links section */
+/* Multi-file links */
 .multi-file-links {
     display: flex;
     gap: 10px;
-    margin-left: 15px; 
+    margin-left: 15px;
 }
 
 .doc-file-link {
-    color: #93c5fd; /* Light blue link color */
+    color: #93c5fd;
     text-decoration: underline;
     font-size: 0.8em;
     transition: color 0.2s;
@@ -208,7 +180,43 @@
     color: #60a5fa;
 }
 
-/* Old Missing Document Class (Kept for consistency, but less used now) */
-.missing-document-detail {
-    color: #fca5a5;
+/* ------------------------------ */
+/*       NEW STATUS COLORS        */
+/* ------------------------------ */
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* COMPLETED → Green */
+.status-completed {
+    background-color: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* QUEUED → Indigo */
+.status-queued {
+    background-color: rgba(129, 140, 248, 0.15);
+    color: #818cf8;
+    border: 1px solid rgba(129, 140, 248, 0.3);
+}
+
+/* PENDING → Yellow */
+.status-pending {
+    background-color: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+/* DISCREPANCY → Red */
+.status-discrepancy {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
 }

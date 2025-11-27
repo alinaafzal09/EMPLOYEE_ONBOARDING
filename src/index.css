@@ -20,13 +20,7 @@ body, #root, html {
     transition: all 0.2s ease-in-out;
 }
 
-/* This is the class we will use to lock the scroll */
-.no-scroll-page {
-    overflow: hidden !important; 
-    height: 100%;
-    margin: 0; /* Important to prevent scrollbars from appearing due to default browser margins */
-    padding: 0;
-}
+
 /*.app-container {
     height: 100vh; 
     margin: 0;    
@@ -34,6 +28,10 @@ body, #root, html {
     padding-bottom: 2px;
 }*/
 /* 3. GLOBAL LAYOUT STYLES (Sidebar and Main Content Structure) */
+
+
+/*
+previous one 
 .home-container {
     display: flex;
     height: 100vh;
@@ -44,6 +42,19 @@ body, #root, html {
     padding-bottom: 2px;
     min-height: 100vh;
 }
+
+*/
+.home-container {
+    display: flex;
+    background-color: #1A1C2A; 
+    color: #f3f4f6;
+    width: 100%;
+    align-items: flex-start;
+    padding-bottom: 2px;
+    min-height: 100%;
+    height: auto;
+}
+
 
 /*.main-content {
     flex: 1;
@@ -96,7 +107,7 @@ body, #root, html {
     padding-bottom: 10px;
     border-bottom: 1px solid #374151;
     text-align: center; 
-    margin-top: -45px;
+    margin-top: -60px;
 }
 
 
@@ -147,14 +158,14 @@ body, #root, html {
     height: 1000%; 
 }*/
 .sidebar-container {
-    width: 255px;
+    width: 200px;
     height: 100vh;
     background-color: #27293D;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     box-shadow: 8px 0 10px rgba(48, 213, 200, 0.4);
-    position :relative;
+    position :sticky;
     top :0;
     flex-direction: column;
     padding: 16px;
@@ -162,9 +173,11 @@ body, #root, html {
     transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
     margin-top: -30px;
     bottom : 0;
+    
 
     
-}
+} /*mostttttt imppppp*/
+
 
 
 
@@ -338,6 +351,7 @@ body, #root, html {
     font-size:  2rem;
     font-weight: 600;
     color: #f3f4f6;
+    margin-top: 35px;
 }
 
 
@@ -350,18 +364,26 @@ body, #root, html {
 .search-input-wrapper {
     position: relative;
 }
-
 .search-input {
-    background-color: #1A1C2A; 
-    color: white;
-    border: 1px solid transparent;
-    border-radius: 8px; 
-    padding-top: 8px; 
-    padding-bottom: 8px; 
-    padding-left: 40px; 
-    padding-right: 16px; 
-    outline: none;
+  background-color: #1A1C2A;
+  color: white;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 6px 150px;    /* reduced top & bottom padding */
+  outline: none;
 }
+
+/* Adjust icon positioning if needed */
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  color: #9ca3af;
+}
+
 
 .search-input:focus {
     box-shadow: 0 0 0 2px #8B5CF6; 
@@ -369,7 +391,7 @@ body, #root, html {
 
 
 
-.search-icon {
+/*.search-icon {
     position: absolute;
     left: 12px;
     top: 50%;
@@ -377,7 +399,7 @@ body, #root, html {
     width: 20px;
     height: 20px;
     color: #9ca3af;
-}
+}*/
 
 .sort-dropdown {
     background-color: #1A1C2A;

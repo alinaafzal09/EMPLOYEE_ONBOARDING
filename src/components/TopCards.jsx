@@ -1,6 +1,5 @@
 // src/components/TopCards.jsx
 import React from "react";
-// Import the new CSS file
 import './TopCards.css'; 
 
 import { UsersIcon, CheckCircleIcon, ClockIcon } from '@heroicons/react/24/outline';
@@ -24,7 +23,7 @@ const TopCards = ({ data }) => {
     },
     { 
       title: "Pending", 
-      value: data.pending, 
+      value: data.pending,
       icon: ClockIcon,
       cssIconColor: "icon-yellow",
       cssBorderColor: "border-yellow"

@@ -4,7 +4,36 @@ import React, { useEffect, useState } from "react";
 import TopCards from "../components/TopCards";
 import DataTable from "../components/DataTable";
 import "./Home.css";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+
+const REQUIRED_DOCS = [
+  "tenthMarksheet",
+  "twelfthMarksheet",
+  "bachelorsDegree",
+  "bachelorsResult",
+  "identityProof",
+  "policeVerification",
+  "aadhaarOrDomicile",
+  "salarySlips",
+  "relievingLetter",
+  "resume",
+  "bankDetails",
+];
+
+// Compute status based on documents
+const calculateStatus = (pendingFiles) => {
+  let submitted = 0;
+
+  REQUIRED_DOCS.forEach((doc) => {
+    const val = pendingFiles?.[doc];
+
+    if (Array.isArray(val) && val.length > 0) submitted++;
+    else if (typeof val === "string" && val.length > 0) submitted++;
+  });
+
+  if (submitted === 0) return "PENDING";
+  if (submitted < REQUIRED_DOCS.length) return "QUEUED";
+  return "COMPLETED";
+};
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
@@ -14,48 +43,48 @@ const Home = () => {
     pending: 0,
   });
   const [paginationData, setPaginationData] = useState({});
-  const [searchQuery, setSearchQuery] = useState("");
 
-  // ✅ Fetch data only for summary & pagination
   const fetchCandidatesData = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:8088/employees");
+      const response = await fetch("http://192.168.1.32:8001/candidates");
       if (!response.ok) throw new Error("Failed to fetch employee data");
 
       const data = await response.json();
-      console.log("✅ API Response:", data);
+      console.log("API Response:", data);
 
       const candidatesArray = Array.isArray(data)
         ? data
         : data.data || data.employees || data.candidates || [];
 
-      const totalCandidates = candidatesArray.length;
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
+      // Process each candidate using document-based status
+      const processed = candidatesArray.map((c) => {
+        const pendingFiles = c.documents?.pendingFiles || {};
+        return {
+          ...c,
+          computedStatus: calculateStatus(pendingFiles),
+        };
+      });
 
-      const clearThisMonth = candidatesArray.filter((item) => {
-        const updatedAt = new Date(item.updatedAt);
-        return (
-          item.status === "COMPLETED" &&
-          updatedAt.getMonth() === currentMonth &&
-          updatedAt.getFullYear() === currentYear
-        );
-      }).length;
+      const totalCandidates = processed.length;
 
-      const pending = candidatesArray.filter(
-        (item) => item.status !== "COMPLETED"
+      const clear = processed.filter(
+        (x) => x.computedStatus === "COMPLETED"
+      ).length;
+
+      const pending = processed.filter(
+        (x) => x.computedStatus === "PENDING"
       ).length;
 
       setSummaryData({
         totalCandidates,
-        clear: clearThisMonth,
+        clear,
         pending,
       });
 
       setPaginationData(data.pagination || {});
     } catch (error) {
-      console.error("❌ Error fetching data:", error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -67,37 +96,21 @@ const Home = () => {
 
   return (
     <main className="main-content">
-      {/* Header Section */}
-      <header className="main-header">
-        <h1 className="header-title">Hello HR 👋</h1>
-
-        {/* Top Right Search Bar */}
-        <div className="search-bar-wrapper">
-          <input
-            type="text"
-            placeholder="Search candidate..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
-          />
-          <MagnifyingGlassIcon className="search-icon-small" />
-        </div>
-      </header>
-
-      {/* TopCards Section */}
+      {/* Summary Cards */}
       <TopCards data={summaryData} />
 
-      {/* Employee Data Table */}
+      {/* Data Table */}
       {loading ? (
         <p className="loading-text">Loading candidates data...</p>
       ) : (
-        <DataTable pagination={paginationData} globalSearch={searchQuery} />
+        <DataTable pagination={paginationData} />
       )}
     </main>
   );
 };
 
 export default Home;
+
 
 
 

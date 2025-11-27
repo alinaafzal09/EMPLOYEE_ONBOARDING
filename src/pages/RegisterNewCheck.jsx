@@ -33,7 +33,7 @@ const RegisterNewCheck = () => {
     
     const initialState = {
         candidateName: '', city: '', localAddress: '', permanentAddress: '', 
-        phoneNumber: '', email: '', employer: '', 
+        phonenumber: '', email: '', employer: '', 
         previousHrEmail: '', 
 
         // Single Document Fields
@@ -105,7 +105,7 @@ const handleSubmit = async (e) => {
         const metadata = {
             candidateName: formData.candidateName || null, city: formData.city || null,
             localAddress: formData.localAddress || null, permanentAddress: formData.permanentAddress || null,
-            phoneNumber: formData.phoneNumber || null, email: formData.email || null,
+            phonenumber: formData.phonenumber || null, email: formData.email || null,
             employer: formData.employer || null, previousHrEmail: formData.previousHrEmail || null,
         };
 
@@ -165,7 +165,7 @@ const handleSubmit = async (e) => {
             console.warn("Submitting form with metadata only. No files were uploaded.");
         }
 
-        console.log("🚀 Final FormData contents:");
+        console.log(" Final FormData contents:");
         for (let [key, val] of fd.entries()) {
             if (val instanceof File) {
                 console.log(`${key}: FILE -> ${val.name} (${val.type}, ${val.size} bytes)`);
@@ -174,9 +174,10 @@ const handleSubmit = async (e) => {
             }
         }
         
-        const apiEndpoint = "http://localhost:8088/ingest-files";
+        const apiEndpoint = "http://192.168.1.32:8001/ingest-files";
         const res = await fetch(apiEndpoint, { method: "POST", body: fd });
         const text = await res.text();
+        console.log("serverresponse ",text);
 
         if (!res.ok) {
             let detail = text;
@@ -192,7 +193,7 @@ const handleSubmit = async (e) => {
         setSubmissionStatus(2); 
 
         setTimeout(() => {
-            navigate('/dashboard/check-status', { replace: true }); 
+           navigate('/dashboard', { replace: true }); 
         }, 2000); 
 
         setFormData(initialState);
@@ -238,13 +239,13 @@ const handleSubmit = async (e) => {
                 
                 {submissionStatus === 2 && (
                     <div className="submission-message-box success-box">
-                        ✅ **Success!** Check request submitted. Redirecting in a moment...
+                         **Success!** Check request submitted. Redirecting in a moment...
                     </div>
                 )}
                 
                 {submissionStatus === 3 && (
                     <div className="submission-message-box error-box">
-                        ❌ **Error!** {errorMessage || 'Submission failed. Please check the required fields and network connection.'}
+                         **Error!** {errorMessage || 'Submission failed. Please check the required fields and network connection.'}
                     </div>
                 )}
 
@@ -261,7 +262,7 @@ const handleSubmit = async (e) => {
                             <div className="form-input-group"><label htmlFor="employer" className="form-label">Employer / Company *</label><input id="employer" name="employer" type="text" className="form-input" value={formData.employer} onChange={handleChange} placeholder="e.g., Trident Info Systems" required disabled={isSubmittingState}/></div>
                         </div>
                         <div className="form-grid-2col">
-                            <div className="form-input-group"><label htmlFor="phoneNumber" className="form-label">Phone Number *</label><input id="phoneNumber" name="phoneNumber" type="tel" className="form-input" value={formData.phoneNumber} onChange={handleChange} placeholder="e.g., 9988776655" required disabled={isSubmittingState}/></div>
+                            <div className="form-input-group"><label htmlFor="phonenumber" className="form-label">Phone Number *</label><input id="phonenumber" name="phonenumber" type="tel" className="form-input" value={formData.phonenumber} onChange={handleChange} placeholder="e.g., 9988776655" required disabled={isSubmittingState}/></div>
                             <div className="form-input-group"><label htmlFor="email" className="form-label">Email Address *</label><input id="email" name="email" type="email" className="form-input" value={formData.email} onChange={handleChange} placeholder="e.g., jane.doe@example.com" required disabled={isSubmittingState}/></div>
                         </div>
                         <div className="form-input-group"><label htmlFor="city" className="form-label">City *</label><input id="city" name="city" type="text" className="form-input" value={formData.city} onChange={handleChange} placeholder="e.g., New Delhi" required disabled={isSubmittingState}/></div>
