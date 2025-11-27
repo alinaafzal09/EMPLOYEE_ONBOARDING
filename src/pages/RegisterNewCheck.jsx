@@ -302,11 +302,11 @@ const handleSubmit = async (e) => {
                         <h2 className="form-section-header" style={{marginTop: '30px'}}>Master's Documents (Optional)</h2>
                         <div className="form-grid-2col">
                             <DocumentInput 
-                                id="mastersDegree" label="Master's Degree Certificate (Optional)" name="mastersDegree" 
+                                id="mastersDegree" label="Master's Degree Certificate " name="mastersDegree" 
                                 file={formData.mastersDegree} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false}
                             />
                             <DocumentInput 
-                                id="mastersResult" label="Master's Transcript/Result (Optional)" name="mastersResult" 
+                                id="mastersResult" label="Master's Transcript/Result " name="mastersResult" 
                                 file={formData.mastersResult} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false}
                             />
                         </div>
@@ -382,12 +382,12 @@ const handleSubmit = async (e) => {
                         
                         {/* Optional: Bank Details */}
                         <DocumentInput 
-                            id="bankDetails" label="Bank Details Proof (e.g., Cancelled Cheque/Statement) (Optional)" name="bankDetails" 
+                            id="bankDetails" label="Bank Details Proof (e.g., Cancelled Cheque/Statement) " name="bankDetails" 
                             file={formData.bankDetails} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false} />
 
                         {/* Optional: Resume/CV */}
                         <DocumentInput 
-                            id="resume" label="Resume/CV (Optional)" name="resume" 
+                            id="resume" label="Resume/CV " name="resume" 
                             file={formData.resume} handler={handleSingleFileChange} isSubmitting={isSubmittingState} required={false}
                         />
 

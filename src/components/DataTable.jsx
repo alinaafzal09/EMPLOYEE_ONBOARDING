@@ -376,7 +376,7 @@ const DataTable = ({ pagination: initialPagination, globalSearch = "" }) => {
       setPagination(data.pagination || {});
     } catch (err) {
       setError(err.message);
-    } finally {
+     } finally {
       setIsLoading(false);
     }
   };
